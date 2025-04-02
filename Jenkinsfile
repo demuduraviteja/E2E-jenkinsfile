@@ -1,3 +1,5 @@
+@Library('my-e2e-shared-lib') _
+
 pipeline {
     agent any
     tools {
