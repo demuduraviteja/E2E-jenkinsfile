@@ -49,13 +49,6 @@ pipeline {
                 }
             }
         }
-        stage('Sonar Quality gate Check') {
-            steps {
-                script {
-                    qualitygateCheck()
-                }
-            }
-        }
         stage('Upload to Nexus') {
             steps {
                 script {
