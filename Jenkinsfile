@@ -15,8 +15,6 @@ pipeline {
         // Define global variables for the repository URL and branch
         GIT_REPO_URL = "${params.GIT_REPO_URL}"
         GIT_BRANCH = "${params.GIT_BRANCH}"
-        NEXUS_REPO_URL = 'https://nexus.example.com/repository/maven-releases/'  // Define the Nexus repository URL
-        NEXUS_REPO_ID = 'nexus-repo'  // Define the Nexus repository ID
         IMAGE_NAME = 'your-image-name'
         IMAGE_TAG = 'latest'
         AWS_REGION = 'ap-south-1'
@@ -52,9 +50,7 @@ pipeline {
         stage('Upload to Nexus') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'nexus-credentials', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
-                        nexusUpload()
-                    }
+                    nexusUpload()
                 }
             }
     }
