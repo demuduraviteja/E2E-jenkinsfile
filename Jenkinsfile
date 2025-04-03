@@ -1,83 +1,53 @@
 @Library('my-e2e-shared-lib') _
 
-pipeline {
-    agent any
-    tools {
-        maven 'Maven 3.9'  // Use the Maven tool from Jenkins' Global Tool Configuration
-    }
+node {
+    // Define tools
+    tool name: 'Maven 3.9', type: 'hudson.tasks.Maven$MavenInstallation'
 
-    parameters {
-        string(name: 'GIT_REPO_URL', defaultValue: 'https://github.com/demuduraviteja/myspringboot-application.git', description: 'Git Repository URL')
-        string(name: 'GIT_BRANCH', defaultValue: 'master', description: 'Branch to checkout')
-    }
+    // Parameters
+    def GIT_REPO_URL = params.GIT_REPO_URL ?: 'https://github.com/demuduraviteja/myspringboot-application.git'
+    def GIT_BRANCH = params.GIT_BRANCH ?: 'master'
 
-    environment {
-        // Define global variables for the repository URL and branch
-        GIT_REPO_URL = "${params.GIT_REPO_URL}"
-        GIT_BRANCH = "${params.GIT_BRANCH}"
-        IMAGE_NAME = 'your-image-name'
-        IMAGE_TAG = 'latest'
-        AWS_REGION = 'ap-south-1'
-        AWS_ACCOUNT_ID = 'your-aws-account-id'
-        ECR_REPO_NAME = 'your-ecr-repo-name'
-        ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-    }
+    // Environment variables
+    env.IMAGE_NAME = 'your-image-name'
+    env.IMAGE_TAG = 'latest'
+    env.AWS_REGION = 'ap-south-1'
+    env.AWS_ACCOUNT_ID = 'your-aws-account-id'
+    env.ECR_REPO_NAME = 'your-ecr-repo-name'
+    env.ECR_REGISTRY = "${env.AWS_ACCOUNT_ID}.dkr.ecr.${env.AWS_REGION}.amazonaws.com"
 
-    stages {
+    try {
         stage('Checkout') {
-            steps {
-                script {
-                    // Now you can directly call the shared library function without passing parameters
-                    gitCheckout()  // Parameters are automatically available from environment variables
-                }
-            }
+            gitCheckout()
         }
-            stage('Maven Build') {
-            steps {
-                script {
-                    // Call the shared library (without passing the mavenHome)
-                    mavenBuild()
-                }
-            }
+
+        stage('Maven Build') {
+            mavenBuild()
         }
+
         stage('Sonar Scan') {
-            steps {
-                script {
-                    sonarScan()
-                }
-            }
+            sonarScan()
         }
+
         stage('Upload to Nexus') {
-            steps {
-                script {
-                    nexusUpload()
-                }
-            }
-    }
-    stage('Build Docker Image') {
-            steps {
-                script {
-                    // Call the shared library function to build the Docker image (no parameters needed)
-                    dockerBuild()
-                }
-            }
+            nexusUpload()
+        }
+
+        stage('Build Docker Image') {
+            dockerBuild()
         }
 
         stage('Push Docker Image to ECR') {
-            steps {
-                script {
-                    // Call the shared library function to push the image to ECR (no parameters needed)
-                    imageUploadtoECR()
-                }
-            }
+            imageUploadtoECR()
         }
+
         stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    // Call the shared library function to deploy to Kubernetes
-                    deployToK8s()  // No need to pass parameters
-                }
-            }
+            deployToK8s()
         }
- }
+
+    } catch (Exception e) {
+        echo "Pipeline failed: ${e.getMessage()}"
+        currentBuild.result = 'FAILURE'
+        throw e
+    }
 }
