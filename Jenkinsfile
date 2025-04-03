@@ -15,12 +15,6 @@ pipeline {
         // Define global variables for the repository URL and branch
         GIT_REPO_URL = "${params.GIT_REPO_URL}"
         GIT_BRANCH = "${params.GIT_BRANCH}"
-        IMAGE_NAME = 'your-image-name'
-        IMAGE_TAG = 'latest'
-        AWS_REGION = 'ap-south-1'
-        AWS_ACCOUNT_ID = 'your-aws-account-id'
-        ECR_REPO_NAME = 'your-ecr-repo-name'
-        ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
     }
 
     stages {
