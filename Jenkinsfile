@@ -67,7 +67,7 @@ pipeline {
             steps {
                 script {
                     // Call the shared library function to push the image to ECR (no parameters needed)
-                    imageUploadtoECR()
+                    imageUploadtoDockerHub()
                 }
             }
         }
